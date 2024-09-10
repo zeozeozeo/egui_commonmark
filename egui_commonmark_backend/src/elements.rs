@@ -58,9 +58,17 @@ pub fn number_point(ui: &mut Ui, number: &str) {
     );
 }
 
-#[inline]
-pub fn footnote_start(ui: &mut Ui, note: &str) {
-    ui.label(RichText::new(note).raised().strong().small());
+#[inline(always)]
+pub(crate) fn label(ui: &mut Ui, text: impl Into<RichText>) {
+    #[cfg(feature = "twemoji")]
+    egui_twemoji::EmojiLabel::new(text).show(ui);
+
+    #[cfg(not(feature = "twemoji"))]
+    ui.label(text.into());
+}
+
+pub(crate) fn footnote_start(ui: &mut Ui, note: &str) {
+    label(ui, RichText::new(note).raised().strong().small());
 }
 
 pub fn footnote(ui: &mut Ui, text: &str) {

@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 use crate::pulldown::ScrollableCache;
 
+use elements::label;
 #[cfg(feature = "better_syntax_highlighting")]
 use syntect::{
     easy::HighlightLines,
@@ -222,7 +223,7 @@ impl Image {
         if !self.alt_text.is_empty() && options.show_alt_text_on_hover {
             response.on_hover_ui_at_pointer(|ui| {
                 for alt in self.alt_text {
-                    ui.label(alt);
+                    label(ui, alt);
                 }
             });
         }
