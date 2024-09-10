@@ -26,7 +26,6 @@ egui_commonmark_macros = { version = "0.17.0", path = "egui_commonmark_macros", 
 document-features = { version = "0.2" }
 
 pulldown-cmark = { version = "0.12", default-features = false }
-egui-twemoji = { version = "0.4.0", optional = true }
 
 [patch.crates-io]
 # eframe = { git = "https://github.com/emilk/egui.git", rev = "cbb5d6aa936c7498214dba03b594fbe75dbe7488" }      # egui master 2024-06-05

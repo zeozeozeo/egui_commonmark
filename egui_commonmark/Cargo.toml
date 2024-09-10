@@ -25,6 +25,7 @@ egui = { workspace = true }
 document-features = { workspace = true, optional = true }
 
 pulldown-cmark = { workspace = true  }
+egui-twemoji = { version = "0.4.0", optional = true }
 
 [features]
 default = ["load-images", "pulldown_cmark"]
@@ -41,6 +42,9 @@ dump-macro = ["egui_commonmark_macros/dump-macro"]
 
 ## No-op feature
 pulldown_cmark = []
+
+## Enable emoji rendering
+twemoji = ["dep:egui-twemoji", "egui_commonmark_backend/twemoji"]
 
 ## Syntax highlighting for code blocks using syntect
 better_syntax_highlighting = ["egui_commonmark_backend/better_syntax_highlighting"]

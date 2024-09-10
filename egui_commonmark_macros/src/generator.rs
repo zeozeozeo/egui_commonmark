@@ -567,7 +567,7 @@ impl CommonMarkViewerInternal {
         } else {
             let rich_text = self.richtext_tokenstream(&self.text_style.clone(), &text);
             return quote!(
-                ui.label(#rich_text);
+                ::egui_commonmark_backend::elements::label(ui, #rich_text);
             );
         }
 
@@ -789,7 +789,9 @@ impl CommonMarkViewerInternal {
                         let mut alt_text_stream = TokenStream::new();
                         for alt in alt_text {
                             let text = self.richtext_tokenstream(&alt.style, &alt.text);
-                            alt_text_stream.extend(quote!(ui.label(#text);));
+                            alt_text_stream.extend(
+                                quote!(::egui_commonmark_backend::elements::label(ui, #text);),
+                            );
                         }
 
                         stream.extend(quote!(

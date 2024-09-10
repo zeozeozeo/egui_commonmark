@@ -2,9 +2,9 @@ use crate::alerts::AlertBundle;
 use egui::{text::LayoutJob, RichText, TextStyle, Ui};
 use std::collections::HashMap;
 
+use crate::elements::label;
 use crate::pulldown::ScrollableCache;
 
-use elements::label;
 #[cfg(feature = "better_syntax_highlighting")]
 use syntect::{
     easy::HighlightLines,

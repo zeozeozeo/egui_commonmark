@@ -59,7 +59,7 @@ pub fn number_point(ui: &mut Ui, number: &str) {
 }
 
 #[inline(always)]
-pub(crate) fn label(ui: &mut Ui, text: impl Into<RichText>) {
+pub fn label(ui: &mut Ui, text: impl Into<RichText>) {
     #[cfg(feature = "twemoji")]
     egui_twemoji::EmojiLabel::new(text).show(ui);
 
@@ -67,7 +67,7 @@ pub(crate) fn label(ui: &mut Ui, text: impl Into<RichText>) {
     ui.label(text.into());
 }
 
-pub(crate) fn footnote_start(ui: &mut Ui, note: &str) {
+pub fn footnote_start(ui: &mut Ui, note: &str) {
     label(ui, RichText::new(note).raised().strong().small());
 }
 
