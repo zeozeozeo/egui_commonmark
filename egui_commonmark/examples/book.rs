@@ -47,8 +47,8 @@ impl App {
     fn content_panel(&mut self, ui: &mut egui::Ui) {
         egui::ScrollArea::vertical().show(ui, |ui| {
             // Add a frame with margin to prevent the content from hugging the sidepanel
-            egui::Frame::none()
-                .inner_margin(egui::Margin::symmetric(5.0, 0.0))
+            egui::Frame::new()
+                .inner_margin(egui::Margin::symmetric(5, 0))
                 .show(ui, |ui| {
                     CommonMarkViewer::new()
                         .default_width(Some(200))
@@ -82,9 +82,9 @@ fn main() -> eframe::Result {
         Box::new(move |cc| {
             if let Some(theme) = args.next() {
                 if theme == "light" {
-                    cc.egui_ctx.set_visuals(egui::Visuals::light());
+                    cc.egui_ctx.set_theme(egui::Theme::Light);
                 } else if theme == "dark" {
-                    cc.egui_ctx.set_visuals(egui::Visuals::dark());
+                    cc.egui_ctx.set_theme(egui::Theme::Dark);
                 }
             }
             cc.egui_ctx.style_mut(|style| {
@@ -123,6 +123,14 @@ fn main() -> eframe::Result {
                     Page {
                         name: "Tables".to_owned(),
                         content: include_str!("markdown/tables.md").to_owned(),
+                    },
+                    Page {
+                        name: "Embedded Image".to_owned(),
+                        content: include_str!("markdown/embedded_image.md").to_owned(),
+                    },
+                    Page {
+                        name: "Html text".to_owned(),
+                        content: include_str!("markdown/html.md").to_owned(),
                     },
                 ],
             }))

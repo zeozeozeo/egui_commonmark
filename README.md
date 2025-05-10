@@ -3,7 +3,7 @@
 [![Crate](https://img.shields.io/crates/v/egui_commonmark.svg)](https://crates.io/crates/egui_commonmark)
 [![Documentation](https://docs.rs/egui_commonmark/badge.svg)](https://docs.rs/egui_commonmark)
 
-<img src="https://raw.githubusercontent.com/lampsitter/egui_commonmark/master/assets/example-v3.png" alt="showcase" width=280/>
+<img src="https://raw.githubusercontent.com/lampsitter/egui_commonmark/master/assets/example-v4.png" alt="showcase" width=280/>
 
 While this crate's main focus is commonmark, it also supports a subset of
 Github's markdown syntax: tables, strikethrough, tasklists and footnotes.
@@ -13,7 +13,7 @@ Github's markdown syntax: tables, strikethrough, tasklists and footnotes.
 In Cargo.toml:
 
 ```toml
-egui_commonmark = "0.17"
+egui_commonmark = "0.20"
 # Specify what image formats you want to use
 image = { version = "0.25", default-features = false, features = ["png"] }
 ```
@@ -69,6 +69,21 @@ commonmark_str!(ui, &mut cache, "content.md");
 
 For an easy intro check out the `hello_world` example. To see all the different
 features egui_commonmark has to offer check out the `book` example.
+
+## FAQ
+
+### URL is not displayed when hovering over a link
+
+By default egui does not show urls when you hover hyperlinks. To enable it,
+you can do the following before calling any ui related functions:
+
+```rust
+ui.style_mut().url_in_tooltip = true;
+```
+
+## MSRV Policy
+
+This crate uses the same MSRV as the latest released egui version.
 
 ## License
 

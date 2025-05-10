@@ -11,23 +11,27 @@ resolver = "2"
 [workspace.package]
 license = "MIT OR Apache-2.0"
 edition = "2021"
-rust-version = "1.76"                                        # Follows egui
-version = "0.17.0"
+rust-version = "1.81"                                        # Follows egui
+version = "0.20.0"
 repository = "https://github.com/lampsitter/egui_commonmark"
 
 [workspace.dependencies]
-egui_extras = { version = "0.28", default-features = false }
-egui = { version = "0.28", default-features = false }
+egui_extras = { version = "0.31", default-features = false }
+egui = { version = "0.31", default-features = false }
 
-egui_commonmark_backend = { version = "0.17.0", path = "egui_commonmark_backend", default-features = false }
-egui_commonmark_macros = { version = "0.17.0", path = "egui_commonmark_macros", default-features = false }
+egui_commonmark_backend = { version = "0.20.0", path = "egui_commonmark_backend", default-features = false }
+egui_commonmark_macros = { version = "0.20.0", path = "egui_commonmark_macros", default-features = false }
 
 # To add features to documentation
 document-features = { version = "0.2" }
 
-pulldown-cmark = { version = "0.12", default-features = false }
+pulldown-cmark = { version = "0.13", default-features = false }
 
 [patch.crates-io]
-# eframe = { git = "https://github.com/emilk/egui.git", rev = "cbb5d6aa936c7498214dba03b594fbe75dbe7488" }      # egui master 2024-06-05
-# egui = { git = "https://github.com/emilk/egui.git", rev = "cbb5d6aa936c7498214dba03b594fbe75dbe7488" }        # egui master 2024-06-05
-# egui_extras = { git = "https://github.com/emilk/egui.git", rev = "cbb5d6aa936c7498214dba03b594fbe75dbe7488" } # egui master 2024-06-05
+# eframe = { git = "https://github.com/emilk/egui.git", branch = "master" }
+# egui = { git = "https://github.com/emilk/egui.git", branch = "master" }
+# egui_extras = { git = "https://github.com/emilk/egui.git", branch = "master" }
+
+# eframe = { path = "../../egui/crates/eframe" }
+# egui = { path = "../../egui/crates/egui" }
+# egui_extras = { path = "../../egui/crates/egui_extras" }

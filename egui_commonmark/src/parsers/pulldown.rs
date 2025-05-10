@@ -72,6 +72,9 @@ pub struct CommonMarkViewerInternal {
     image: Option<Image>,
     line: Newline,
     code_block: Option<CodeBlock>,
+
+    /// Only populated if the html_fn option has been set
+    html_block: String,
     is_list_item: bool,
     def_list: DefinitionList,
     is_table: bool,
@@ -96,6 +99,7 @@ impl CommonMarkViewerInternal {
             is_list_item: false,
             def_list: Default::default(),
             code_block: None,
+            html_block: String::new(),
             is_table: false,
             is_blockquote: false,
             checkbox_events: Vec::new(),
@@ -103,9 +107,17 @@ impl CommonMarkViewerInternal {
     }
 }
 
+fn parser_options_math(is_math_enabled: bool) -> pulldown_cmark::Options {
+    if is_math_enabled {
+        parser_options() | pulldown_cmark::Options::ENABLE_MATH
+    } else {
+        parser_options()
+    }
+}
+
 impl CommonMarkViewerInternal {
     /// Be aware that this acquires egui::Context internally.
-    /// If Id is provided split then split points will be populated
+    /// If split Id is provided then split points will be populated
     pub(crate) fn show(
         &mut self,
         ui: &mut egui::Ui,
@@ -122,10 +134,13 @@ impl CommonMarkViewerInternal {
             let height = ui.text_style_height(&TextStyle::Body);
             ui.set_row_height(height);
 
-            let mut events = pulldown_cmark::Parser::new_ext(text, parser_options())
-                .into_offset_iter()
-                .enumerate()
-                .peekable();
+            let mut events = pulldown_cmark::Parser::new_ext(
+                text,
+                parser_options_math(options.math_fn.is_some()),
+            )
+            .into_offset_iter()
+            .enumerate()
+            .peekable();
 
             while let Some((index, (e, src_span))) = events.next() {
                 let start_position = ui.next_widget_position();
@@ -183,7 +198,7 @@ impl CommonMarkViewerInternal {
 
         let Some(page_size) = scroll_cache(cache, &source_id).page_size else {
             egui::ScrollArea::vertical()
-                .id_source(scroll_id)
+                .id_salt(scroll_id)
                 .auto_shrink([false, true])
                 .show(ui, |ui| {
                     self.show(ui, cache, options, text, Some(source_id));
@@ -193,14 +208,15 @@ impl CommonMarkViewerInternal {
             return;
         };
 
-        let events = pulldown_cmark::Parser::new_ext(text, parser_options())
-            .into_offset_iter()
-            .collect::<Vec<_>>();
+        let events =
+            pulldown_cmark::Parser::new_ext(text, parser_options_math(options.math_fn.is_some()))
+                .into_offset_iter()
+                .collect::<Vec<_>>();
 
         let num_rows = events.len();
 
         egui::ScrollArea::vertical()
-            .id_source(scroll_id)
+            .id_salt(scroll_id)
             // Elements have different widths, so the scroll area cannot try to shrink to the
             // content, as that will mean that the scroll bar will move when loading elements
             // with different widths.
@@ -505,8 +521,17 @@ impl CommonMarkViewerInternal {
                 self.event_text(text, ui);
                 self.text_style.code = false;
             }
-            pulldown_cmark::Event::InlineHtml(_) => {}
-            pulldown_cmark::Event::Html(_) => {}
+            pulldown_cmark::Event::InlineHtml(text) => {
+                self.event_text(text, ui);
+            }
+
+            pulldown_cmark::Event::Html(text) => {
+                if options.html_fn.is_some() {
+                    self.html_block.push_str(&text);
+                } else {
+                    self.event_text(text, ui);
+                }
+            }
             pulldown_cmark::Event::FootnoteReference(footnote) => {
                 footnote_start(ui, &footnote);
             }
@@ -533,8 +558,16 @@ impl CommonMarkViewerInternal {
                     ui.add(ImmutableCheckbox::without_text(&mut checkbox));
                 }
             }
-
-            pulldown_cmark::Event::InlineMath(_) | pulldown_cmark::Event::DisplayMath(_) => {}
+            pulldown_cmark::Event::InlineMath(tex) => {
+                if let Some(math_fn) = options.math_fn {
+                    math_fn(ui, &tex, true);
+                }
+            }
+            pulldown_cmark::Event::DisplayMath(tex) => {
+                if let Some(math_fn) = options.math_fn {
+                    math_fn(ui, &tex, false);
+                }
+            }
         }
     }
 
@@ -643,7 +676,9 @@ impl CommonMarkViewerInternal {
             pulldown_cmark::Tag::Image { dest_url, .. } => {
                 self.image = Some(crate::Image::new(&dest_url, options));
             }
-            pulldown_cmark::Tag::HtmlBlock => {}
+            pulldown_cmark::Tag::HtmlBlock => {
+                self.line.try_insert_start(ui);
+            }
             pulldown_cmark::Tag::MetadataBlock(_) => {}
 
             pulldown_cmark::Tag::DefinitionList => {
@@ -662,6 +697,8 @@ impl CommonMarkViewerInternal {
             pulldown_cmark::Tag::DefinitionListDefinition => {
                 self.def_list.is_def_list_def = true;
             }
+            // Not yet supported
+            pulldown_cmark::Tag::Superscript | pulldown_cmark::Tag::Subscript => {}
         }
     }
 
@@ -719,22 +756,29 @@ impl CommonMarkViewerInternal {
             pulldown_cmark::TagEnd::Strikethrough => {
                 self.text_style.strikethrough = false;
             }
-            pulldown_cmark::TagEnd::Link { .. } => {
+            pulldown_cmark::TagEnd::Link => {
                 if let Some(link) = self.link.take() {
                     link.end(ui, cache);
                 }
             }
-            pulldown_cmark::TagEnd::Image { .. } => {
+            pulldown_cmark::TagEnd::Image => {
                 if let Some(image) = self.image.take() {
                     image.end(ui, options);
                 }
             }
-            pulldown_cmark::TagEnd::HtmlBlock => {}
+            pulldown_cmark::TagEnd::HtmlBlock => {
+                if let Some(html_fn) = options.html_fn {
+                    html_fn(ui, &self.html_block);
+                    self.html_block.clear();
+                }
+            }
+
             pulldown_cmark::TagEnd::MetadataBlock(_) => {}
 
             pulldown_cmark::TagEnd::DefinitionList => self.line.try_insert_end(ui),
             pulldown_cmark::TagEnd::DefinitionListTitle
             | pulldown_cmark::TagEnd::DefinitionListDefinition => {}
+            pulldown_cmark::TagEnd::Superscript | pulldown_cmark::TagEnd::Subscript => {}
         }
     }
 

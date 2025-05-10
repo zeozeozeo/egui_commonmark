@@ -2,6 +2,43 @@
 
 ## Unreleased
 
+### Changed
+
+- Updated to pulldown-cmark 0.13
+
+
+### Fixed
+
+- Rendering of html in macros
+
+## 0.20.0 - 2025-02-04
+
+### Added
+
+- Callback function `render_math_fn` for custom math rendering
+- Callback function `render_html_fn` for custom html rendering
+
+### Changed
+
+- Updated egui to 0.31 ([#71](https://github.com/lampsitter/egui_commonmark/pull/71) by
+  [@Wumpf](https://github.com/Wumpf) and [@emilk](https://github.com/emilk))
+
+### Fixed
+
+- Html is rendered as text instead of not being displayed
+
+## 0.19.0 - 2024-12-17
+
+## Added
+
+- Support for loading images embedded in the markdown with data urls.
+
+### Changed
+
+- Updated egui to 0.30 ([#69](https://github.com/lampsitter/egui_commonmark/pull/69) by [@abey79](https://github.com/abey79))
+
+## 0.18.0 - 2024-09-26
+
 ### Added
 
 - Definition lists

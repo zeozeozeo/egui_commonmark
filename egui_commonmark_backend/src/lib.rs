@@ -11,6 +11,9 @@ pub mod misc;
 #[doc(hidden)]
 pub mod pulldown;
 
+#[cfg(feature = "embedded_image")]
+mod data_url_loader;
+
 // For ease of use in proc macros
 #[doc(hidden)]
 pub use {
@@ -22,3 +25,8 @@ pub use {
 
 // The only struct that is allowed to use directly. (If one does not need egui_commonmark)
 pub use misc::CommonMarkCache;
+
+/// Takes [`egui::Ui`], the math text to be rendered and whether it is inline
+pub type RenderMathFn = dyn Fn(&mut egui::Ui, &str, bool);
+/// Takes [`egui::Ui`] and the html text to be rendered/used
+pub type RenderHtmlFn = dyn Fn(&mut egui::Ui, &str);

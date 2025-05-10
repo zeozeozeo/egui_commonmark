@@ -518,8 +518,8 @@ impl CommonMarkViewerInternal {
                 self.text_style.code = false;
                 s
             }
-            pulldown_cmark::Event::InlineHtml(_) | pulldown_cmark::Event::Html(_) => {
-                TokenStream::new()
+            pulldown_cmark::Event::InlineHtml(text) | pulldown_cmark::Event::Html(text) => {
+                self.event_text(text)
             }
             pulldown_cmark::Event::FootnoteReference(footnote) => {
                 let footnote = footnote.to_string();
@@ -679,7 +679,7 @@ impl CommonMarkViewerInternal {
                 TokenStream::new()
             }
             pulldown_cmark::Tag::HtmlBlock | pulldown_cmark::Tag::MetadataBlock(_) => {
-                TokenStream::new()
+                self.line.try_insert_start()
             }
             pulldown_cmark::Tag::DefinitionList => {
                 let s = self.line.try_insert_start();
@@ -698,6 +698,7 @@ impl CommonMarkViewerInternal {
                 self.def_list.is_def_list_def = true;
                 TokenStream::new()
             }
+            pulldown_cmark::Tag::Superscript | pulldown_cmark::Tag::Subscript => TokenStream::new(),
         }
     }
 
@@ -752,7 +753,7 @@ impl CommonMarkViewerInternal {
                 self.text_style.strikethrough = false;
                 TokenStream::new()
             }
-            pulldown_cmark::TagEnd::Link { .. } => {
+            pulldown_cmark::TagEnd::Link => {
                 if let Some(link) = self.link.take() {
                     let StyledLink { destination, text } = link;
                     let mut text_stream = TokenStream::new();
@@ -771,7 +772,7 @@ impl CommonMarkViewerInternal {
                     TokenStream::new()
                 }
             }
-            pulldown_cmark::TagEnd::Image { .. } => {
+            pulldown_cmark::TagEnd::Image => {
                 let mut stream = TokenStream::new();
                 if let Some(image) = self.image.take() {
                     // FIXME: Try to reduce code duplication here
@@ -808,6 +809,9 @@ impl CommonMarkViewerInternal {
             pulldown_cmark::TagEnd::DefinitionList => self.line.try_insert_end(),
             pulldown_cmark::TagEnd::DefinitionListTitle => TokenStream::new(),
             pulldown_cmark::TagEnd::DefinitionListDefinition => TokenStream::new(),
+            pulldown_cmark::TagEnd::Superscript | pulldown_cmark::TagEnd::Subscript => {
+                TokenStream::new()
+            }
         }
     }
 
